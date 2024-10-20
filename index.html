@@ -17,24 +17,13 @@
     <form class="w-75 mx-auto">
         <p class="mt-3">購入品</p>
         <div>
-            <select class="form-control w-100 mt-1" name="buy" placeholder="" required>
-                <option value="未入力">未入力</option>
-                <option value="traffic">交通費</option>
-                <option value="eat">飲食費</option>
-                <option value="hotel">宿泊費</option>
-                <option value="sightseeing">観光費</option>
-                <option value="souvenir">お土産</option>
-                <option value="else">雑費</option>
-            </select>
+            <input class="form-control w-100 mt-1" name="buy" required>
+        </div>
 
         </div>
         <p class="mt-3">金額（円）</p>
         <div>
             <input type="number" class="form-control w-100 mt-1" name="price" required>
-        </div>
-        <p class="mt-3">メモ</p>
-        <div>
-            <input  class="form-control w-100 mt-1" name="memo" required>
         </div>
         <input type="submit" class="mt-4 btn btn-primary" value="送信">
     </form>
@@ -80,8 +69,7 @@
             $('form').submit(function () {
                 const buy = $('input[name="name"]').val();
                 const price = $('input[name="udetate"]').val();
-                const memo = $('input[name="fukkin"]').val();
-                const msg = `${buy}\n${price}\n${memo}\n`;
+                const msg = `${buy}\n${price}\n`;
                 sendText(msg);
                 return false;
             });
