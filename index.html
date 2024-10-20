@@ -2,95 +2,93 @@
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>家計簿</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        rossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css">
 </head>
 
 <body>
+
     <h1>家計簿</h1>
+    <form class="w-75 mx-auto">
+        <p class="mt-3">購入品</p>
+        <div>
+            <select class="form-control w-100 mt-1" name="buy" placeholder="" required>
+                <option value="未入力">未入力</option>
+                <option value="traffic">交通費</option>
+                <option value="eat">飲食費</option>
+                <option value="hotel">宿泊費</option>
+                <option value="sightseeing">観光費</option>
+                <option value="souvenir">お土産</option>
+                <option value="else">雑費</option>
+            </select>
 
-    <form id="travelForm">
-        <label for="buy">購入品：</label>
-        <select name="select">
-            <option value="未入力">未入力</option>
-            <option value="traffic">交通費</option>
-            <option value="eat">飲食費</option>
-            <option value="hotel">宿泊費</option>
-            <option value="sightseeing">観光費</option>
-            <option value="souvenir">お土産</option>
-            <option value="else">雑費</option>
-        </select>
-
-        <br><br>
-        <label for="price">料金：</label>
-        <input type="number" id="price" name="price">
-        <label>円</label>
-        <br><br>
-        <label>メモ</label>
-        <br>
-        <textarea id="memo" name="memo" rows="4" cols="25" for="memo"></textarea>
-        <br><br>
-        <button type="submit">送信</button>
+        </div>
+        <p class="mt-3">金額（円）</p>
+        <div>
+            <input type="number" class="form-control w-100 mt-1" name="price" required>
+        </div>
+        <p class="mt-3">メモ</p>
+        <div>
+            <input  class="form-control w-100 mt-1" name="memo" required>
+        </div>
+        <input type="submit" class="mt-4 btn btn-primary" value="送信">
     </form>
 
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
     <script>
-        // LIFFの初期化
-        window.onload = function () {
-            liff.init({ liffId: "YOUR_LIFF_ID" })
-                .then(() => {
-                    // LIFFの初期化が成功した場合の処理
-                    console.log('LIFF initialized');
-                })
-                .catch((err) => {
-                    console.error('LIFF initialization failed', err);
-                });
-        };
 
-        // フォーム送信処理
-        document.getElementById('travelForm').addEventListener('submit', function (event) {
-            event.preventDefault();
+        $(document).ready(function () {
+            const liffId = "**********-********";
+            initializeLiff(liffId);
+        })
 
-            const buy = document.getElementById('buy').value;
-            const price = document.getElementById('price').value;
-            const memo = document.getElementById('memo').value;
+        function initializeLiff(liffId) {
+            liff.init({
+                liffId: liffId
+            }).then(() => {
+                initializeApp();
+            }).catch((err) => {
+                console.log('LIFF Initialization failed ', err);
+            });
+        }
 
-            if (buy && price && memo) {
-                // LIFF SDKを使ってLINE Botにデータを送信
-                liff.getProfile()
-                    .then(profile => {
-                        const userId = profile.userId;
+        function sendText(text) {
+            liff.sendMessages([{
+                'type': 'text',
+                'text': text
+            }]).then(function () {
+                liff.closeWindow();
+            }).catch(function (error) {
+                window.alert('Failed to send message ' + error);
+            });
+        }
 
-                        fetch('YOUR_LAMBDA_API_ENDPOINT', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                userId: userId,
-                                buy: buy,
-                                price: price,
-                                memo: memo
-                            })
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log('データが送信されました', data);
-                                liff.sendMessages([{
-                                    type: 'text',
-                                    text: 'データが送信されました！'
-                                }]).then(() => {
-                                    liff.closeWindow();
-                                });
-                            })
-                            .catch(err => {
-                                console.error('データ送信中にエラーが発生しました', err);
-                            });
-                    });
-            }
+        const params = (new URL(document.location)).searchParams;
+        const key = params.get('key');
+
+        $(function () {
+            $('form').submit(function () {
+                const buy = $('input[name="name"]').val();
+                const price = $('input[name="udetate"]').val();
+                const memo = $('input[name="fukkin"]').val();
+                const msg = `${buy}\n${price}\n${memo}\n`;
+                sendText(msg);
+                return false;
+            });
         });
+
     </script>
+
 </body>
 
 </html>
