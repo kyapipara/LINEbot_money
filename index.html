@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家計簿</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+
+<body>
+    <h1>家計簿</h1>
+
+    <form id="travelForm">
+        <label for="buy">購入品：</label>
+        <select name="select">
+            <option value="未入力">未入力</option>
+            <option value="traffic">交通費</option>
+            <option value="eat">飲食費</option>
+            <option value="hotel">宿泊費</option>
+            <option value="sightseeing">観光費</option>
+            <option value="souvenir">お土産</option>
+            <option value="else">雑費</option>
+        </select>
+
+        <br><br>
+        <label for="price">料金：</label>
+        <input type="number" id="price" name="price">
+        <label>円</label>
+        <br><br>
+        <label>メモ</label>
+        <br>
+        <textarea id="memo" name="memo" rows="4" cols="25" for="memo"></textarea>
+        <br><br>
+        <button type="submit">送信</button>
+    </form>
+
+    <script>
+        // LIFFの初期化
+        window.onload = function () {
+            liff.init({ liffId: "YOUR_LIFF_ID" })
+                .then(() => {
+                    // LIFFの初期化が成功した場合の処理
+                    console.log('LIFF initialized');
+                })
+                .catch((err) => {
+                    console.error('LIFF initialization failed', err);
+                });
+        };
+
+        // フォーム送信処理
+        document.getElementById('travelForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const buy = document.getElementById('buy').value;
+            const price = document.getElementById('price').value;
+            const memo = document.getElementById('memo').value;
+
+            if (buy && price && memo) {
+                // LIFF SDKを使ってLINE Botにデータを送信
+                liff.getProfile()
+                    .then(profile => {
+                        const userId = profile.userId;
+
+                        fetch('YOUR_LAMBDA_API_ENDPOINT', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                userId: userId,
+                                buy: buy,
+                                price: price,
+                                memo: memo
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('データが送信されました', data);
+                                liff.sendMessages([{
+                                    type: 'text',
+                                    text: 'データが送信されました！'
+                                }]).then(() => {
+                                    liff.closeWindow();
+                                });
+                            })
+                            .catch(err => {
+                                console.error('データ送信中にエラーが発生しました', err);
+                            });
+                    });
+            }
+        });
+    </script>
+</body>
+
+</html>
